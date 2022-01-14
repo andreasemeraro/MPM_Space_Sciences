@@ -87,4 +87,4 @@ def ccTOop(R,V,mu):
 
 #inserisci qui i valori di R (km), V(km/s) come liste e mu (km^3/s^2)
 b=ccTOop([-6045,-3490,2500],[-3.457,6.618,2.533],398600)
-print(b)
+#print(b)
