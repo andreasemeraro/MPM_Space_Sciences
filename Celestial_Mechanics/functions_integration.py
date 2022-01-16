@@ -23,9 +23,9 @@ def rv_from_r0v0(R0, V0, t):
   v0 = np.linalg.norm(V0);
   #...Initial radial velocity:
   
-  #vr0 = np.dot(R0[0], V0[0])/r0;
-  #l'espressione corretta è la seguente
-  vr0 = np.dot(R0, V0)/r0;
+  vr0 = np.dot(R0[0], V0[0])/r0;
+  #l'espressione corretta, trattandosi di un prodotto scalare, dovrebbe essere la seguente
+  #vr0 = np.dot(R0, V0)/r0;
   
   #...Reciprocal of the semimajor axis (from the energy equation):
   alpha = 2/r0 - v0**2/mu;
