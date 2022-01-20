@@ -37,11 +37,21 @@ class Orbit(object):
         """
         self.mu = mu
         if type == 'cartesian':
-            self.cart = np.array(coords)
+            self.cart = {'x':coords[0],
+                         'y':coords[1],
+                         'z':coords[2],
+                         'vx':coords[3],
+                         'vy':coords[4],
+                         'vz':coords[5]}
             # convert coordinates
             self.toKep()
         elif type == 'keplerian':
-            self.kep = np.array(coords)
+            self.kep = {'h':coords[0],
+                         'incl':coords[1],
+                         'RA':coords[2],
+                         'e':coords[3],
+                         'w':coords[4],
+                         'TA':coords[5]}
             # convert coordinates
             self.toCart()
         else:
@@ -51,13 +61,13 @@ class Orbit(object):
         """
         :return: keplerian coordinates
         """
-        return self.kep
+        return np.array(list(self.kep.values()))
 
     def getCart(self):
         """
         :return: cartesian coordinates
         """
-        return self.cart
+        return np.array(list(self.cart.values()))
 
     def getSemiMajorAxes(self):
 
@@ -65,15 +75,15 @@ class Orbit(object):
         :return:  semimajor axis of ellipse in km
         """
 
-        if self.kep[3] <= 0:
+        if self.kep['e'] >= 1:
             raise ValueError("The orbit is not an ellipse.")
         else:
-            h_mod = self.kep[0]
-            incl = self.kep[1] * np.pi / 180
-            RA = self.kep[2] * np.pi / 180
-            e = self.kep[3]
-            w = self.kep[4] * np.pi / 180
-            TA = self.kep[5] * np.pi / 180
+            h_mod = self.kep['h']
+            incl = self.kep['incl'] * np.pi / 180
+            RA = self.kep['RA'] * np.pi / 180
+            e = self.kep['e']
+            w = self.kep['w'] * np.pi / 180
+            TA = self.kep['TA'] * np.pi / 180
 
             rp = (h_mod**2/self.mu)/(1+e)
             ra = (h_mod**2/self.mu)/(1-e)
@@ -86,7 +96,7 @@ class Orbit(object):
         :return: orbit period in seconds
         """
 
-        if self.kep[3] <= 0:
+        if self.kep['e'] >=1:
             raise ValueError("The orbit is not an ellipse.")
         else:
             return 2*np.pi*np.sqrt(self.getSemiMajorAxes()**3)/np.sqrt(self.mu)
@@ -99,8 +109,8 @@ class Orbit(object):
         """
 
         if self.cart is not None:
-            r = self.cart[0:3]
-            v = self.cart[3:]
+            r = np.array([self.cart['x'], self.cart['y'], self.cart['z']])
+            v = np.array([self.cart['vx'], self.cart['vy'], self.cart['vz']])
         else:
             raise ValueError("cartesian coordinates are not defined")
 
@@ -141,7 +151,7 @@ class Orbit(object):
         e = np.linalg.norm(e_vec)
 
         # 12. calculate the argument of perigee
-        if e_vec[2] >= 0 :
+        if e_vec[2] >= 0:
             w = np.arccos(np.dot(N, e_vec)/(N_mod*e))
         else:
             w = 2*np.pi - np.arccos(np.dot(N, e_vec)/(N_mod*e))
@@ -153,7 +163,12 @@ class Orbit(object):
             TA = 2*np.pi - np.arccos(np.dot(e_vec,r)/(e*r_mod))
 
         # define Keplerian coordinates
-        self.kep = np.array([h_mod, incl*180/np.pi, RA*180/np.pi, e, w*180/np.pi, TA*180/np.pi])
+        self.kep = {'h':h_mod,
+                    'incl':incl*180/np.pi,
+                    'RA':RA*180/np.pi,
+                    'e':e,
+                    'w':w*180/np.pi,
+                    'TA':TA*180/np.pi}
 
     def toCart(self):
 
@@ -163,12 +178,12 @@ class Orbit(object):
         """
 
         if self.kep is not None:
-            h_mod = self.kep[0]
-            incl = self.kep[1]*np.pi/180
-            RA = self.kep[2]*np.pi/180
-            e = self.kep[3]
-            w = self.kep[4]*np.pi/180
-            TA = self.kep[5]*np.pi/180
+            h_mod = self.kep['h']
+            incl = self.kep['incl']*np.pi/180
+            RA = self.kep['RA']*np.pi/180
+            e = self.kep['e']
+            w = self.kep['w']*np.pi/180
+            TA = self.kep['TA']*np.pi/180
         else:
             raise ValueError("keplerian coordinates are not defined")
 
@@ -188,7 +203,12 @@ class Orbit(object):
         v = Q.dot(v_perif)
 
         # define cartesian coordinates
-        self.cart = np.concatenate((r, v), axis=None)
+        self.cart = {'x':r[0],
+                     'y':r[1],
+                     'z':r[2],
+                     'vx':v[0],
+                     'vy':v[1],
+                     'vz':v[2]}
 
 
 
