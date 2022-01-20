@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-
+import matplotlib.pyplot as plt
 
 class Orbit(object):
 
@@ -62,6 +62,19 @@ class Orbit(object):
         :return: keplerian coordinates
         """
         return np.array(list(self.kep.values()))
+
+    def getKepDict(self):
+        """
+        :return: keplerian coordinates dictionary
+        """
+        return self.kep
+
+    def getCartDict(self):
+        """
+        :return: cartesian coordinates dictionary
+        """
+        return self.cart
+
 
     def getCart(self):
         """
@@ -190,6 +203,7 @@ class Orbit(object):
         # 1. calculate r perifocal
         r_perif = (h_mod**2/self.mu)/(1 + e*np.cos(TA))*np.array([np.cos(TA), np.sin(TA), 0.0])
 
+
         # 2. calculate v perifocal
         v_perif = (self.mu/h_mod)*np.array([-np.sin(TA), e + np.cos(TA), 0.0])
 
@@ -202,6 +216,7 @@ class Orbit(object):
         r = Q.dot(r_perif)
         v = Q.dot(v_perif)
 
+
         # define cartesian coordinates
         self.cart = {'x':r[0],
                      'y':r[1],
@@ -210,6 +225,21 @@ class Orbit(object):
                      'vy':v[1],
                      'vz':v[2]}
 
+    def draw(self):
+        TA_span = np.linspace(0, 360, 500)
+        R = []
+
+        for t in TA_span:
+            coord = [self.kep['h'], self.kep['incl'], self.kep['RA'], self.kep['e'], self.kep['w'], t]
+            R.append(Orbit(coord, "keplerian", mu=self.mu).getCart())
+            #print(Orbit(coord, "keplerian", mu=self.mu).getKep())
+            #print(coord)
+        R = np.array(R).T
+
+        fig = plt.figure()
+        ax = plt.axes(projection='3d')
+        ax.plot(R[0, :], R[1, :], R[2, :])
+        plt.show()
 
 
 
@@ -248,3 +278,5 @@ class TestConversion(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+

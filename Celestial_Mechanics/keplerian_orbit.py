@@ -3,6 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from Orbit import Orbit
 
+class Kepler_Problem(object):
+    pass
+
 def NewtonForce(t, st, mu):
 
     x, y, z = st[0:3]
@@ -23,6 +26,8 @@ def NewtonForce_J2(t, st, mu):
     return [vx, vy, vz, -mu*x/r**3 - 1.5*J2*mu*RE**2/r**5*(1-5*z**2/r**2)*x,
             -mu*y/r**3 - 1.5*J2*mu*RE**2/r**5*(1-5*z**2/r**2)*y,
             -mu*z/r**3 - 1.5*J2*mu*RE**2/r**5*(3-5*z**2/r**2)*z]
+
+
 
 st0 = [1, 63.4, 0, 0.8, 0, 0]
 t0 = 0
