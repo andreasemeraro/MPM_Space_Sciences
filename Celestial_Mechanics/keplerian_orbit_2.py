@@ -32,19 +32,19 @@ def solve_orbit_kep(data, func,  method='RK45', rtol=1e-3, atol=1e-6):
 ###############################################################
 
 
-h = 1
+h = 80000
 incl = 63.4
 RA = 0
 e = 0.5
 w = 0
 TA = 0
 
-mu = 1
-RE = 1
+mu = 398600
+RE = 6371
 J2 = 1e-3
 
 t0 = 0
-tf = 35000
+tf = 24*3600*300
 
 st0 = [h, incl, RA, e, w, TA]
 
@@ -60,30 +60,15 @@ data = {'ic': Orbit(st0, 'keplerian', mu).getCart(),
 
 sol = solve_orbit_kep(data, NewtonForce_J2, rtol=1e-6)
 
-# t = np.linspace(t0, tf, 10000)
-# R = sol.sol(t)
-# fig = plt.figure()
-# ax = plt.axes(projection='3d')
-# # for R in R_span:
-# #     ax.plot(R[0, :], R[1, :], R[2, :])
-# ax.plot(R[0, :], R[1, :],  R[2, :])
-#
-# plt.show()
-#
-t_span = [np.linspace(n, n+30, 100) for n in range(t0, tf-1000, 1000)]
-R_span = [sol.sol(t) for t in t_span]
-
+t = np.linspace(t0, tf, 30000)
+R = sol.sol(t)
 fig = plt.figure()
 ax = plt.axes(projection='3d')
-for R in R_span:
-    ax.plot(R[0, :], R[1, :], R[2, :])
-# ax.plot(R1[0, :], R1[1, :], R1[2, :])
-# ax.plot(R2[0, :], R2[1, :], R2[2, :])
-# ax.plot(R3[0, :], R3[1, :], R3[2, :])
 
-# plt.xlim([-1, 1])
-# plt.ylim([-1, 1])
-# ax.set_zlim3d(-1, 1)
+ax.plot(R[0, :], R[1, :],  R[2, :])
+
+
 
 plt.show()
+
 

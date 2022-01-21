@@ -17,11 +17,11 @@ class Orbit(object):
     incl - inclination of the orbit (rad)
     N - the node line vector (kmˆ2/s)
     N_mod - the magnitude of N
-    RA - right ascension of the ascending node (rad)
+    RA - right ascension of the ascending node (grad)
     e_vec - eccentricity vector
     e - eccentricity (magnitude of E)
-    w - argument of perigee (rad)
-    TA - true anomaly (rad)
+    w - argument of perigee (grad)
+    TA - true anomaly (grad)
     T - period, only for an ellipse (e<1) otherwise is 0
     pi - 3.1415926...
     """
@@ -103,6 +103,15 @@ class Orbit(object):
 
             return (rp+ra)/2
 
+    def getRadius(self):
+
+        """
+        :return: orbit radius in km
+        """
+
+        r = [self.cart['x'], self.cart['y'], self.cart['z']]
+        return np.linalg.norm(r)
+
     def getPeriod(self):
 
         """
@@ -113,6 +122,10 @@ class Orbit(object):
             raise ValueError("The orbit is not an ellipse.")
         else:
             return 2*np.pi*np.sqrt(self.getSemiMajorAxes()**3)/np.sqrt(self.mu)
+
+
+    def getEnergy(self):
+        pass
 
     def toKep(self):
 
@@ -145,8 +158,8 @@ class Orbit(object):
         # 6. calculate the inclination
         incl = np.arccos(h[2]/h_mod)
 
-        # 7. calulate N
-        N = np.cross([0,0,1], h)
+        # 7. calculate N
+        N = np.cross([0, 0, 1], h)
 
         # 8. calculate the magnitude of N
         N_mod = np.linalg.norm(N)
