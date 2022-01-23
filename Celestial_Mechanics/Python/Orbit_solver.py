@@ -3,24 +3,57 @@ import numpy as np
 import matplotlib.pyplot as plt
 from Orbit import Orbit
 
-def gauss_plan_eq(t, kep , ap, *args):
+def newton_force_eq(t, st, ap, *args):
 
     mu = args[0]
 
+    ap_x, ap_y, ap_z = ap(t, st, *args)
+
+    x, y, z = st[0:3]
+    vx, vy, vz = st[3:]
+    r = np.linalg.norm(st[0:3])
+
+    return [vx, vy, vz, -mu*x/r**3 + ap_x, -mu*y/r**3 + ap_y, -mu*z/r**3 + ap_z]
+
+def ap_J2_cart(t, st, mu, RE, J2):
+
+    x, y, z = st[0:3]
+    vx, vy, vz = st[3:]
+    r = np.linalg.norm(st[0:3])
+
+    return [- 1.5*J2*mu*RE**2/r**5*(1-5*z**2/r**2)*x,
+            - 1.5*J2*mu*RE**2/r**5*(1-5*z**2/r**2)*y,
+            - 1.5*J2*mu*RE**2/r**5*(3-5*z**2/r**2)*z]
+
+def gauss_plan_eq(t, kep , ap, *args):
+
+    """
+    :param t: time in seconds
+    :param kep: keplerian coordinates, must be given as [h_mod, incl, RA, e, w, TA]
+    :param ap: function ap(t, kep, *args), represent the components [a_r, a_s, a_w] of the perturbation
+    :param args: parameters, must choose args[0]==mu
+    :return: numpy array kep_dot
+    """
+
+    # set mu
+    mu = args[0]
+
+    # create orbit data
     orb = Orbit(kep, 'keplerian', mu)
 
+    # perturbations
     a_r, a_s, a_w = ap(t, kep, *args)
 
+    # useful coordinates
     r = orb.getRadius()
     h = orb.getKepDict()['h']
     incl = orb.getKepDict()['incl']*np.pi/180
-    #RA = orb.getKepDict()['RA']*np.pi/180
     e = orb.getKepDict()['e']
     w = orb.getKepDict()['w']*np.pi/180
     TA = orb.getKepDict()['TA']*np.pi/180
-
     p = h**2/mu
 
+    # gauss equations
     h_dot = r*a_s
     incl_dot = r*np.cos(TA + w)/h*a_w
     RA_dot = r*np.sin(TA + w)/(h*np.sin(incl))*a_w
@@ -33,13 +66,19 @@ def gauss_plan_eq(t, kep , ap, *args):
 
 def ap_J2(t, kep, mu, RE, J2):
 
+    """
+    :param t: time in seconds
+    :param kep: keplerian coordinates, must be given as [h_mod, incl, RA, e, w, TA]
+    :param mu: gravitational parameter (kmˆ3/sˆ2); mu=G(m1+m2)
+    :param RE: planet radius
+    :param J2: first zonal harmonics
+    :return: perturbations [a_r, a_s, a_w]
+    """
+
     orb = Orbit(kep, 'keplerian', mu)
 
     r = orb.getRadius()
-    #h = orb.getKepDict()['h']
     incl = orb.getKepDict()['incl'] * np.pi / 180
-    #RA = orb.getKepDict()['RA'] * np.pi / 180
-    #e = orb.getKepDict()['e']
     w = orb.getKepDict()['w'] * np.pi / 180
     TA = orb.getKepDict()['TA'] * np.pi / 180
 
@@ -47,57 +86,17 @@ def ap_J2(t, kep, mu, RE, J2):
                                            np.sin(incl)**2*np.sin(2*(TA + w)),
                                            np.sin(2*incl)*np.sin(TA + w)])
 
-def dyn(t, kep, *args):
-    return gauss_plan_eq(t, kep, ap_J2, *args)
-
-
 def solve_orbit_kep(data, func,  method='RK45', rtol=1e-3, atol=1e-6):
+
+    """
+    :param data: dictionary, must contain 't_span', 'ic', 'args'
+    :param func: dynamical function
+    :param method: string, integration method
+    :param rtol: relative tolerance
+    :param atol: absolute tolerance
+    :return: sol object from scipy
+    """
 
     return solve_ivp(func, data['t_span'], data['ic'], args=data['args'], dense_output=True, rtol=rtol,
                      atol=atol, method=method)
 
-###############################################################
-# Begin problem
-###############################################################
-
-
-a = 7571
-incl = 87.9
-RA = 180
-e = 0.01
-w = 180
-TA = 0
-
-mu = 398600
-RE = 6000
-J2 = 1e-3
-
-t0 = 0
-tf = 10*3600*24
-
-h = np.sqrt(mu/a**3)*a*a*np.sqrt(1-e**2)
-
-data = {'ic': [h, incl, RA, e, w, TA],
-        't_span': [t0, tf],
-        'args': [mu, RE, J2]}
-
-sol = solve_orbit_kep(data, dyn, rtol=1e-9)
-
-t = np.linspace(t0, tf, 5000)
-
-orb = sol.sol(t)
-print(orb)
-
-R = np.array([Orbit(step, "keplerian", mu).getCart() for step in orb.T]).T
-
-fig = plt.figure()
-ax = plt.axes(projection='3d')
-ax.plot(R[0, :], R[1, :],  R[2, :])
-
-
-h_span = orb[0]
-fig2 = plt.figure()
-plt.plot(t, (h_span-h_span[0])/h_span[0])
-plt.ylim(-1, 1)
-
-plt.show()

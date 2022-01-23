@@ -19,7 +19,7 @@ class Orbit(object):
     N_mod - the magnitude of N
     RA - right ascension of the ascending node (grad)
     e_vec - eccentricity vector
-    e - eccentricity (magnitude of E)
+    e - eccentricity (magnitude of e_vec)
     w - argument of perigee (grad)
     TA - true anomaly (grad)
     T - period, only for an ellipse (e<1) otherwise is 0
@@ -36,6 +36,7 @@ class Orbit(object):
         :param mu: gravitational parameter (kmˆ3/sˆ2); mu=G(m1+m2); default value is mu=398600
         """
         self.mu = mu
+        self.type = type
         if type == 'cartesian':
             self.cart = {'x':coords[0],
                          'y':coords[1],
@@ -249,13 +250,23 @@ class Orbit(object):
             #print(coord)
         R = np.array(R).T
 
-        fig = plt.figure()
         ax = plt.axes(projection='3d')
         ax.plot(R[0, :], R[1, :], R[2, :])
-        plt.show()
 
+        return ax
 
+    def __str__(self):
 
+        if self.type == 'keplerian':
+            return f'Keplerian coordinates: \n' \
+                   f'[h: {self.kep["h"]}, incl: {self.kep["incl"]}, ' \
+                   f'RA: {self.kep["RA"]}, e: {self.kep["e"]}, ' \
+                   f'w: {self.kep["w"]}, TA: {self.kep["TA"]}]'
+        else:
+            return f'Cartesian coordinates: \n' \
+                   f'[x: {self.cart["x"]}, y: {self.cart["y"]}, ' \
+                   f'z: {self.cart["z"]}, vx: {self.cart["vx"]}, ' \
+                   f'vy: {self.cart["vy"]}, vz: {self.cart["vz"]}]'
 
 
 # =============================================================================
@@ -287,6 +298,12 @@ class TestConversion(unittest.TestCase):
     def testPeriod(self):
         self.orbit = Orbit(self.cart_coords_1, 'cartesian')
         np.testing.assert_almost_equal(self.orbit.getPeriod(), 2.278*3600, -1)
+
+    def testString(self):
+        self.orbit1 = Orbit(self.kep_coords_1, 'keplerian')
+        self.orbit2 = Orbit(self.cart_coords_1, 'cartesian')
+        print(self.orbit1)
+        print(self.orbit2)
 
 
 if __name__ == '__main__':
