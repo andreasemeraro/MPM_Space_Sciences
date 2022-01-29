@@ -184,10 +184,10 @@ class Orbit(object):
             w = 2*np.pi - np.arccos(np.dot(N, e_vec)/(N_mod*e))
 
         # 13. calculate the true anomaly
-        if vr >= 0 :
-            TA = np.arccos(np.dot(e_vec,r)/(e*r_mod))
+        if vr >= 0:
+            TA = np.arccos(np.dot(e_vec, r)/(e*r_mod))
         else:
-            TA = 2*np.pi - np.arccos(np.dot(e_vec,r)/(e*r_mod))
+            TA = 2*np.pi - np.arccos(np.dot(e_vec, r)/(e*r_mod))
 
         # define Keplerian coordinates
         self.kep = {'h':h_mod,

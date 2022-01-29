@@ -3,6 +3,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from Orbit import Orbit
 
+"""
+Reference: Chapter 8,9 'Vallado, Fundamentals of astrodynamics and applications'
+"""
+
 def newton_force_eq(t, st, ap, *args):
 
     mu = args[0]
@@ -18,7 +22,6 @@ def newton_force_eq(t, st, ap, *args):
 def ap_J2_cart(t, st, mu, RE, J2):
 
     x, y, z = st[0:3]
-    vx, vy, vz = st[3:]
     r = np.linalg.norm(st[0:3])
 
     return [- 1.5*J2*mu*RE**2/r**5*(1-5*z**2/r**2)*x,
