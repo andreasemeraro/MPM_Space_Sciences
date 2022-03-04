@@ -8,5 +8,4 @@ In the following part a brief description of each code will be made:
    - [Data_Analysis](https://github.com/andreasemeraro/MPM_Space_Sciences/tree/main/Data_Analysis):
    - [Launcher](https://github.com/andreasemeraro/MPM_Space_Sciences/tree/main/Launcher):
    - [Machine_Learning](https://github.com/andreasemeraro/MPM_Space_Sciences/tree/main/Machine_Learning):
-   - [Orbit perturbation](https://github.com/andreasemeraro/MPM_Space_Sciences/tree/main/Orbit%20perturbation):
-
+   - [Orbit perturbation](https://github.com/andreasemeraro/MPM_Space_Sciences/tree/main/Orbit%20perturbation):matlab file ''Ex_10_6_J2_final.m'' computes the effects of J2 mars gravitational field and provides an average value of the norm of a_J2 (calculated during 700 days on mars orbit), that is the perturbing acceleration of the due to J2 effects.
